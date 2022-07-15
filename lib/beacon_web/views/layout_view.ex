@@ -9,6 +9,10 @@ defmodule BeaconWeb.LayoutView do
 
   def page_title(%{layout_assigns: %{page_title: page_title}}), do: page_title
 
+  def page_title(%{__dynamic_layout_data__: %{page_title: page_title}}) when is_binary(page_title) do
+    page_title
+  end
+
   def page_title(%{__dynamic_layout_data__: %{layout_id: layout_id}, __site__: site}) do
     %{title: title} = compiled_layout_assigns(site, layout_id)
     title
@@ -20,15 +24,15 @@ defmodule BeaconWeb.LayoutView do
   end
 
   # for dynamic pages
-  def meta_tags(%{__dynamic_layout_data__: _, __site__: _} = assigns) do
-    {:safe, meta_tags_unsafe(assigns)}
+  def meta_tags(%{__dynamic_layout_data__: dynamic_layout_data, __site__: _} = assigns) do
+    {:safe, meta_tags_unsafe(assigns, dynamic_layout_data)}
   end
 
   def meta_tags(_), do: ""
 
-  def meta_tags_unsafe(assigns) do
+  def meta_tags_unsafe(assigns, dynamic_layout_data) do
     assigns
-    |> get_meta_tags()
+    |> get_meta_tags(dynamic_layout_data)
     |> Enum.map_join("\n", fn {key, value} ->
       # TODO: escape key/values here
       "    <meta property=\"#{key}\" content=\"#{value}\">"
@@ -37,14 +41,16 @@ defmodule BeaconWeb.LayoutView do
 
   # for non dynamic pages
 
-  def get_meta_tags(%{layout_assigns: %{meta_tags: meta_tags}} = assigns) do
+  def get_meta_tags(%{layout_assigns: %{meta_tags: meta_tags}} = assigns, _dynamic_layout_data) do
     assigns
     |> compiled_meta_tags()
     |> Map.merge(meta_tags)
   end
 
-  def get_meta_tags(assigns) do
-    compiled_meta_tags(assigns)
+  def get_meta_tags(assigns, %{meta_tags: dynamic_meta_tags} = _dynamic_layout_data) do
+    assigns
+    |> compiled_meta_tags()
+    |> Map.merge(dynamic_meta_tags)
   end
 
   def dynamic_layout?(%{__dynamic_layout_data__: _}), do: true
