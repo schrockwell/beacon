@@ -6,9 +6,7 @@ defmodule Beacon.Loader.ComponentModuleLoader do
 
   def load_components(site, components) do
     component_module = Beacon.Loader.component_module_for_site(site)
-
     render_functions = Enum.map(components, &render_component/1)
-
     code_string = render(component_module, render_functions)
     Logger.debug("Loading components: \n#{code_string}")
     :ok = ModuleLoader.load(component_module, code_string)
@@ -18,10 +16,8 @@ defmodule Beacon.Loader.ComponentModuleLoader do
   defp render(component_module, render_functions) do
     """
     defmodule #{component_module} do
-      import Phoenix.LiveView.Helpers
+      use Phoenix.Component
       use Phoenix.HTML
-
-      def my_component(name, assigns \\\\ []), do: render(name, Enum.into(assigns, %{}))
 
     #{Enum.join(render_functions, "\n")}
     end
@@ -34,7 +30,7 @@ defmodule Beacon.Loader.ComponentModuleLoader do
     end
 
     """
-      def render(#{inspect(name)}, assigns) do
+      def #{name}(assigns) do
     #{~s(~H""")}
     #{body}
     #{~s(""")}

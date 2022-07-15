@@ -51,7 +51,7 @@ defmodule Beacon.PagesTest do
         <h2>Some Values:</h2>
         <ul>
           <%= for val <- @beacon_live_data[:vals] do %>
-            <%= my_component("sample_component", val: val) %>
+            <.sample_component val={val} />
           <% end %>
         </ul>
       </main>
