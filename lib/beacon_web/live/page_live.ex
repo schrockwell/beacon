@@ -6,17 +6,17 @@ defmodule BeaconWeb.PageLive do
   def mount(%{"path" => path} = params, %{"beacon_site" => site}, socket) do
     live_data = Beacon.DataSource.live_data(site, path, Map.drop(params, ["path"]))
 
-    layout_id =
+    dynamic_layout_data =
       site
       |> Beacon.Loader.page_module_for_site()
-      |> Beacon.Loader.call_function_with_retry(:layout_id_for_path, [path])
+      |> Beacon.Loader.call_function_with_retry(:dynamic_layout_data, [path])
 
     socket =
       socket
       |> assign(:beacon_live_data, live_data)
       |> assign(:__live_path__, path)
       |> assign(:__page_update_available__, false)
-      |> assign(:__dynamic_layout_id__, layout_id)
+      |> assign(:__dynamic_layout_data__, dynamic_layout_data)
       |> assign(:__site__, site)
 
     socket =

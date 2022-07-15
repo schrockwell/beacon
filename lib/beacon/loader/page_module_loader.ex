@@ -10,7 +10,7 @@ defmodule Beacon.Loader.PageModuleLoader do
 
     # Group function heads together to avoid compiler warnings
     functions =
-      for fun <- [&render_page/1, &layout_id_for_path/1],
+      for fun <- [&render_page/1, &dynamic_layout_data/1],
           page <- pages do
         fun.(page)
       end
@@ -51,9 +51,15 @@ defmodule Beacon.Loader.PageModuleLoader do
     """
   end
 
-  defp layout_id_for_path(%Page{path: path, layout_id: layout_id}) do
+  defp dynamic_layout_data(%Page{path: path, layout_id: layout_id}) do
+    # TODO: Add page_title and meta_tags to Page schema, and merge em in here
+
     """
-      def layout_id_for_path(#{path_to_args(path, "_")}), do: #{inspect(layout_id)}
+      def dynamic_layout_data(#{path_to_args(path, "_")}) do
+        %{
+          layout_id: #{inspect(layout_id)}
+        }
+      end
     """
   end
 

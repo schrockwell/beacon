@@ -9,7 +9,7 @@ defmodule BeaconWeb.LayoutView do
 
   def page_title(%{layout_assigns: %{page_title: page_title}}), do: page_title
 
-  def page_title(%{__dynamic_layout_id__: layout_id, __site__: site}) do
+  def page_title(%{__dynamic_layout_data__: %{layout_id: layout_id}, __site__: site}) do
     %{title: title} = compiled_layout_assigns(site, layout_id)
     title
   end
@@ -20,7 +20,7 @@ defmodule BeaconWeb.LayoutView do
   end
 
   # for dynamic pages
-  def meta_tags(%{__dynamic_layout_id__: _, __site__: _} = assigns) do
+  def meta_tags(%{__dynamic_layout_data__: _, __site__: _} = assigns) do
     {:safe, meta_tags_unsafe(assigns)}
   end
 
@@ -47,10 +47,10 @@ defmodule BeaconWeb.LayoutView do
     compiled_meta_tags(assigns)
   end
 
-  def dynamic_layout?(%{__dynamic_layout_id__: _}), do: true
+  def dynamic_layout?(%{__dynamic_layout_data__: _}), do: true
   def dynamic_layout?(_), do: false
 
-  defp compiled_meta_tags(%{__dynamic_layout_id__: layout_id, __site__: site}) do
+  defp compiled_meta_tags(%{__dynamic_layout_data__: %{layout_id: layout_id}, __site__: site}) do
     %{meta_tags: compiled_meta_tags} = compiled_layout_assigns(site, layout_id)
     compiled_meta_tags
   end
@@ -61,7 +61,7 @@ defmodule BeaconWeb.LayoutView do
     Beacon.Loader.call_function_with_retry(module, :layout_assigns, [layout_id])
   end
 
-  def stylesheet_tag(%{__dynamic_layout_id__: _, __site__: site}) do
+  def stylesheet_tag(%{__dynamic_layout_data__: _, __site__: site}) do
     module = Beacon.Loader.stylesheet_module_for_site(site)
 
     stylesheet_tag = Beacon.Loader.call_function_with_retry(module, :render, [])
@@ -70,7 +70,7 @@ defmodule BeaconWeb.LayoutView do
 
   def stylesheet_tag(_), do: ""
 
-  def linked_stylesheets(%{__dynamic_layout_id__: _, __site__: _} = assigns) do
+  def linked_stylesheets(%{__dynamic_layout_data__: _, __site__: _} = assigns) do
     {:safe, linked_stylesheets_unsafe(assigns)}
   end
 
@@ -97,7 +97,7 @@ defmodule BeaconWeb.LayoutView do
     compiled_linked_stylesheets(assigns)
   end
 
-  defp compiled_linked_stylesheets(%{__dynamic_layout_id__: layout_id, __site__: site}) do
+  defp compiled_linked_stylesheets(%{__dynamic_layout_data__: %{layout_id: layout_id}, __site__: site}) do
     %{stylesheet_urls: compiled_linked_stylesheets} = compiled_layout_assigns(site, layout_id)
     compiled_linked_stylesheets
   end
